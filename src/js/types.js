@@ -25,6 +25,12 @@
 
 		with (exports){
 
+			exports.errors = {
+				Error: Class({})
+			};
+
+			exports.errors.InterestInvalidDate = Class(exports.errors.Error, {message: "Could not initialize Interest(): Invalid Date"})
+
 			/*
 				@object BalanceTypes
 			*/
@@ -46,7 +52,7 @@
 			// @class
 			exports.Interest = Class({
 				init: function(){
-					if (!date.getDate()) throw "Could not initialize Interest(): Invalid Date";
+					if (!date.getDate()) throw InterestInvalidDate;
 				}
 			})
 
@@ -77,19 +83,41 @@
 					this.startingBalance = this.startingBalance || 0;
 					this.balance = this.balance || this.startingBalance;
 
-					this.transactionHistory.push(new Transaction({amount: this.startingBalance, note: "Starting Balance"}));
+					this._pushAscending(this.transactionHistory,
+								   new Transaction({amount: this.startingBalance, note: "Starting Balance"}),
+								   "date");
 					if (this.startingBalance != this.balance) {
-						this.transactionHistory.push(new Transaction({amount: this.balance-this.startingBalance, note: "Balance Adjustment"}))
+						this._pushAscending(this.transactionHistory,
+									   new Transaction({amount: this.balance-this.startingBalance, note: "Balance Adjustment"}),
+									   "date");
 					}
 
 				},
+
+
+				// @method @private
+				// Adds a transaction to the history.
+				_pushAscending: function(target, item, compareKey){
+					if (
+						target.length
+						&& item[compareKey] < target[target.length-1][compareKey]
+					){
+						throw "Recent transactions cannot occur prior to previous transactions.";
+					}
+
+					target.push(item);
+
+				},
+
 
 				// @method
 				// Stores the transaction and adjusts the balance
 				transaction: function(amount, date, note){
 					this.init()
 					this.balance += amount
-					this.transactionHistory.push(new Transaction({amount:amount, date:date, note:note}))
+					this._pushAscending(this.transactionHistory,
+								   new Transaction({amount:amount, date:date, note:note}),
+								   "date");
 				},
 
 				// @method
@@ -124,6 +152,8 @@
 					if (!date.getDate()) throw "Invalid Date";
 
 					console.warn("FIXME: Add support for interest rules (monthly/daily, etc)")
+
+
 
 				},
 

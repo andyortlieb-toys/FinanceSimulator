@@ -34,5 +34,13 @@ function run(){
 	me.findAccount("Checking Account").take(83.50)
 	console.log("Worth after withdrawing 84.50 from the checking account", me.worth())
 
+	console.log("This should fail:")
+	yesterday = new Date()
+	yesterday.setDate(yesterday.getDate()-1)
+	me.findAccount("citi").take(83.50, yesterday)
+
+
+
+
 	return me;
 }
