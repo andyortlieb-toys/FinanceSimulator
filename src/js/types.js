@@ -43,6 +43,13 @@
 				}
 			})
 
+			// @class
+			exports.Interest = Class({
+				init: function(){
+					if (!date.getDate()) throw "Could not initialize Interest(): Invalid Date";
+				}
+			})
+
 			// function Hive(){
 			// 	var hive = {
 			// 		items: arguments
@@ -66,6 +73,7 @@
 					this._initialized = true;
 					this._type = this._type;
 					this.transactionHistory = [];
+					this.interestHistory = [];
 					this.startingBalance = this.startingBalance || 0;
 					this.balance = this.balance || this.startingBalance;
 
@@ -73,6 +81,7 @@
 					if (this.startingBalance != this.balance) {
 						this.transactionHistory.push(new Transaction({amount: this.balance-this.startingBalance, note: "Balance Adjustment"}))
 					}
+
 				},
 
 				// @method
@@ -107,6 +116,15 @@
 					var val = 0;
 					for (i in self.transactionHistory) val += self.transactionHistory.amount;
 					return val;
+				},
+
+				// @method
+				applyInterest: function(date){
+					if (typeof date == "undefined") date = new Date();
+					if (!date.getDate()) throw "Invalid Date";
+
+					console.warn("FIXME: Add support for interest rules (monthly/daily, etc)")
+
 				},
 
 				// @prop
