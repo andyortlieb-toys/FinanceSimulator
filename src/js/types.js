@@ -35,31 +35,50 @@
 				Liability:-1
 			}
 
+			// @class
+			exports.Transaction = Class({
+				init: function(){
+					if (typeof this.amount != "number") this.amount = 0;
+					if (!(this.date instanceof Date)) this.date = new Date();
+				}
+			})
+
 			exports.Account = Class({
 				// @constructor
 				init: function(){
-					console.log("To run init?")
 					if (this._initialized) return;
-					console.log("apparently so...")
 					this._initialized = true;
 					this._type = this._type;
 					this.transactionHistory = [];
 					this.startingBalance = this.startingBalance || 0;
 					this.balance = this.balance || this.startingBalance;
+
+					this.transactionHistory.push(new Transaction({amount: this.startingBalance, note: "Starting Balance"}));
+					if (this.startingBalance != this.balance) {
+						this.transactionHistory.push(new Transaction({amount: this.balance-this.startingBalance, note: "Balance Adjustment"}))
+					}
 				},
 
 				// @method
 				// Stores the transaction and adjusts the balance
-				transaction: function(amount, date){
+				transaction: function(amount, date, note){
 					this.init()
 					this.balance += amount * this.balanceType
-					this.transactionHistory.push(new Transaction({amount:amount, date:date}))
+					this.transactionHistory.push(new Transaction({amount:amount, date:date, note:note}))
 				},
 
 				// @method
 				// What does this account net for the owner's worth?
 				worth: function(){
 					return this.balance * this.balanceType;
+				},
+
+				// @method
+				// Returns the sum of all transactions in the history
+				sum: function(){
+					var val = 0;
+					for (i in self.transactionHistory) val += self.transactionHistory.amount;
+					return val;
 				},
 
 				// @prop
@@ -75,11 +94,10 @@
 
 			});
 
-			exports.accounts.Asset = Class(Account, {
+			exports.Asset = exports.accounts.Asset = Class(Account, {
 				_type: "Asset",
 				balanceType: BalanceTypes.Asset,
 				init: function(){
-					console.log("Asset init!");
 					this.SuperApply("init", arguments);
 				}
 			});
@@ -110,6 +128,31 @@
 				_type: "Allowance"
 			});
 
+			exports.Entity = Class({
+				// @constructor
+				init: function(){
+					this.accounts = this.accounts || {}
+					for (k in this.accounts) if (!(this.accounts[k] instanceof exports.Account)) throw "This is not an Account: "+k
+				},
+				// @method
+				// Calculates the current worth of this Entity
+				worth: function(){
+					var val = 0;
+					for (k in this.accounts){
+						val += this.accounts[k].worth();
+					}
+					return val;
+				},
+				// @method
+				// Adds an account to the thing.
+				addAccount: function(acct){
+					if (acct.name in this.accounts){
+						throw ""
+					}
+				}
+			})
+			exports.Person = Class(exports.Entity)
+
 			exports.accountTypes = (function(){
 				var res = []
 				for (k in exports.accounts){
@@ -120,25 +163,6 @@
 				return res;
 			})();
 
-			exports.initAccount = function(accountobj){
-				var acct = new exports.accounts[accountobj._type];
-
-				for (var k in accountobj){
-					acct[k] = accountobj[k];
-				}
-
-				return acct;
-			}
-
-			exports.initAccounts = function(accountlist){
-				newaccounts = [];
-
-				for (var i=0; i<accountlist.length; ++i){
-					newaccounts.push(exports.initAccount(accountlist[i]));
-				}
-
-				return newaccounts;
-			}
 		}
 
 		return exports;
