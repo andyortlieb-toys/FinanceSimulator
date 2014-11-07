@@ -15,7 +15,19 @@ function run(){
 
 	})
 
-	console.log("Intitial worth: ", me.worth())
+	console.log("Intitial worth", me.worth())
+
+	me.findAccount('discover').give(200)
+	console.log("Worth after paying 200 to discover", me.worth())
+	
+	me.findAccount('citi').take(300)
+	console.log("Worth after taking 300 from citi", me.worth())
+
+	me.findAccount("CD Account").give(500)
+	console.log("Worth after depositing 500 to CD", me.worth())
+
+	me.findAccount("Checking Account").take(83.50)
+	console.log("Worth after withdrawing 84.50 from the checking account", me.worth())
 
 	return me;
 }

@@ -30,7 +30,7 @@
 			*/
 			// Balance Types (Account Types) (Credit/Debit)
 			exports.BalanceTypes = {
-				Expense:0,
+				Neutral:0,
 				Asset:1,
 				Liability:-1
 			}
@@ -42,6 +42,22 @@
 					if (!(this.date instanceof Date)) this.date = new Date();
 				}
 			})
+
+			// function Hive(){
+			// 	var hive = {
+			// 		items: arguments
+			// 	};
+			// 	methods = {};
+			// 	for (item in hive.items){
+			// 		for (method in hive.items[item]){
+			// 			if (typeof hive.items[item][method] == 'function'){
+			// 				hive[method] = function(){
+			// 					for item
+			// 				}
+			// 			}
+			// 		}
+			// 	}
+			// }
 
 			exports.Account = Class({
 				// @constructor
@@ -63,8 +79,20 @@
 				// Stores the transaction and adjusts the balance
 				transaction: function(amount, date, note){
 					this.init()
-					this.balance += amount * this.balanceType
+					this.balance += amount
 					this.transactionHistory.push(new Transaction({amount:amount, date:date, note:note}))
+				},
+
+				// @method
+				// Send money to this account
+				give: function(amount, date, note){
+					this.transaction(amount*this.balanceType, date, note);
+				},
+
+				// @method
+				// Take money from this account
+				take: function(amount, date, note){
+					this.transaction(amount*(-this.balanceType), date, note);
 				},
 
 				// @method
@@ -109,7 +137,12 @@
 
 			exports.accounts.Expense = Class(Account, {
 				_type: "Expense",
-				balanceType: BalanceTypes.Expense
+				balanceType: BalanceTypes.Neutral
+			})
+
+			exports.accounts.Revenue = Class(Account, {
+				_type: "Revenue",
+				balanceType: BalanceTypes.Neutral
 			})
 
 			exports.accounts.Service = Class(exports.accounts.Expense, {
@@ -144,10 +177,10 @@
 					return val;
 				},
 				// @method
-				// Adds an account to the thing.
-				addAccount: function(acct){
-					if (acct.name in this.accounts){
-						throw ""
+				// Finds an account by name
+				findAccount: function(name){
+					for (i in this.accounts){
+						if (this.accounts[i].name == name) return this.accounts[i];
 					}
 				}
 			})
