@@ -2,8 +2,8 @@
 
 function run(){
 
-	Exception = Class();
-	AssertionError = Class(Exception);
+	var Exception = Class();
+	var AssertionError = Class(Exception);
 
 
 
@@ -29,6 +29,16 @@ function run(){
 
 		console.warn("assertException failed", err);
 		throw err;
+	}
+
+	function assert(val, message){
+		if (typeof val == 'function'){
+			val = val();
+		}
+		if (!val){
+			throw new AssertionError(message || "assert() failed");
+		}
+		console.info("assert() passed");
 	}
 
 	me = new _fisim.types.Person({
@@ -65,13 +75,16 @@ function run(){
 	console.log("Worth after withdrawing 84.50 from the checking account", me.worth())
 
 	console.log("Before exception", me.worth());
+	var before = me.worth();
 	assertException( _fisim.types.exc.Exception, function(){
 		console.log("This should fail:")
 		yesterday = new Date()
 		yesterday.setDate(yesterday.getDate()-1)
 		me.findAccount("citi").take(83.50, yesterday)
 	});
+	var after = me.worth();
 	console.log("After exception", me.worth());
+	assert(before == after);
 
 
 

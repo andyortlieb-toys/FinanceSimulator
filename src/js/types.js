@@ -108,7 +108,6 @@
 
 				},
 
-
 				// @method
 				// Stores the transaction and adjusts the balance
 				transaction: function(amount, date, note){
