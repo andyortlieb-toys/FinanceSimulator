@@ -1,6 +1,36 @@
 // Make some accounts
 
 function run(){
+
+	Exception = Class();
+	AssertionError = Class(Exception);
+
+
+
+	function assertException(expected, callback){
+		var err;
+		try {
+			callback();
+			throw new AssertionError()
+		}
+		catch (caught){
+			err = caught;
+			console.log("Err thing", err);
+		}
+
+		if (typeof expected == "function" && err instanceof expected){
+			console.log("passed1");
+			return;
+		}
+		if (err == expected){
+			console.log("passed")
+			return;
+		}
+
+		console.warn("assertException failed", err);
+		throw err;
+	}
+
 	me = new _fisim.types.Person({
 		accounts: [
 			new _fisim.types.accounts.Revenue({name: "Employer"}),
@@ -34,10 +64,14 @@ function run(){
 	me.findAccount("Checking Account").take(83.50)
 	console.log("Worth after withdrawing 84.50 from the checking account", me.worth())
 
-	console.log("This should fail:")
-	yesterday = new Date()
-	yesterday.setDate(yesterday.getDate()-1)
-	me.findAccount("citi").take(83.50, yesterday)
+	console.log("Before exception", me.worth());
+	assertException( _fisim.types.exc.Exception, function(){
+		console.log("This should fail:")
+		yesterday = new Date()
+		yesterday.setDate(yesterday.getDate()-1)
+		me.findAccount("citi").take(83.50, yesterday)
+	});
+	console.log("After exception", me.worth());
 
 
 

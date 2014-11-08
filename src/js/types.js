@@ -25,11 +25,10 @@
 
 		with (exports){
 
-			exports.errors = {
-				Error: Class({})
-			};
-
-			exports.errors.InterestInvalidDate = Class(exports.errors.Error, {message: "Could not initialize Interest(): Invalid Date"})
+			exc = exports.exc = {};
+			exc.Exception = Class();
+			exc.InterestInvalidDate = Class(exc.Exception, {message: "Could not initialize Interest(): Invalid Date"})
+			exc.UnorderedTransactions = Class(exc.Exception)
 
 			/*
 				@object BalanceTypes
@@ -102,7 +101,7 @@
 						target.length
 						&& item[compareKey] < target[target.length-1][compareKey]
 					){
-						throw "Recent transactions cannot occur prior to previous transactions.";
+						throw new exc.UnorderedTransactions;
 					}
 
 					target.push(item);
@@ -114,10 +113,10 @@
 				// Stores the transaction and adjusts the balance
 				transaction: function(amount, date, note){
 					this.init()
-					this.balance += amount
 					this._pushAscending(this.transactionHistory,
 								   new Transaction({amount:amount, date:date, note:note}),
 								   "date");
+					this.balance += amount
 				},
 
 				// @method
@@ -149,12 +148,9 @@
 				// @method
 				applyInterest: function(date){
 					if (typeof date == "undefined") date = new Date();
-					if (!date.getDate()) throw "Invalid Date";
+					if (!date.getDate()) throw new exc.InvalidDate;
 
 					console.warn("FIXME: Add support for interest rules (monthly/daily, etc)")
-
-
-
 				},
 
 				// @prop
