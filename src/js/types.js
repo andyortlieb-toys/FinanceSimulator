@@ -163,7 +163,7 @@
 					}
 
 					var bal = 0;
-					for (i=0; i < this.transactionHistory.length; ++i){
+					for (var i=0; i < this.transactionHistory.length; ++i){
 						if (this.transactionHistory[i].date > date){ break; }
 						bal += this.transactionHistory[i].amount;
 					}
@@ -227,13 +227,13 @@
 				// @constructor
 				init: function(){
 					this.accounts = this.accounts || {}
-					for (k in this.accounts) if (!(this.accounts[k] instanceof exports.Account)) throw "This is not an Account: "+k
+					for (var k in this.accounts) if (!(this.accounts[k] instanceof exports.Account)) throw "This is not an Account: "+k
 				},
 				// @method
 				// Calculates the current worth of this Entity
 				worth: function(){
 					var val = 0;
-					for (k in this.accounts){
+					for (var k in this.accounts){
 						val += this.accounts[k].worth();
 					}
 					return val;
@@ -241,7 +241,7 @@
 				// @method
 				// Finds an account by name
 				findAccount: function(name){
-					for (i in this.accounts){
+					for (var i in this.accounts){
 						if (this.accounts[i].name == name) return this.accounts[i];
 					}
 				}
@@ -250,7 +250,7 @@
 
 			exports.accountTypes = (function(){
 				var res = []
-				for (k in exports.accounts){
+				for (var k in exports.accounts){
 					if (exports.accounts[k].prototype._type){
 						res.push(exports.accounts[k].prototype._type);
 					}

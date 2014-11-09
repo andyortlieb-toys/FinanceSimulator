@@ -42,7 +42,7 @@ function run(){
 	console.log("Before exception", me.worth());
 	var before = me.worth();
 	assertException( _fisim.types.exc.Exception, function(){
-		yesterday = new Date()
+		var yesterday = new Date()
 		yesterday.setDate(yesterday.getDate()-1)
 		citi.take(83.50, yesterday)
 	});
@@ -62,9 +62,9 @@ function run(){
 	// Advance a day
 	var day2 = new Date();
 	day2.setDate(day2.getDate()+1);
-	day2balanceprop = citi.balance;
-	day2balancemeth = citi.getBalance();
-	day2balancemethdate = citi.getBalance(day2);
+	var day2balanceprop = citi.balance;
+	var day2balancemeth = citi.getBalance();
+	var day2balancemethdate = citi.getBalance(day2);
 
 	console.log("Starting balance on day2", day2balanceprop, day2balancemeth, day2balancemethdate);
 	assertEq(day2balanceprop, day2balancemeth, day2balancemethdate);
@@ -77,9 +77,9 @@ function run(){
 	// Advance another day
 	var day3 = new Date();
 	day3.setDate(day3.getDate()+2);
-	day3balanceprop = citi.balance;
-	day3balancemeth = citi.getBalance();
-	day3balancemethdate = citi.getBalance(day3);
+	var day3balanceprop = citi.balance;
+	var day3balancemeth = citi.getBalance();
+	var day3balancemethdate = citi.getBalance(day3);
 
 	console.log("Starting balance on day3", day3balanceprop, day3balancemeth, day3balancemethdate);
 	assertEq(day3balanceprop, day3balancemeth, day3balancemethdate);
