@@ -1,0 +1,6 @@
+[submodule "deps/qdjscls"]
+	path = deps/qdjscls
+	url = https://gist.github.com/5051158.git
+[submodule "deps/qdjstest"]
+	path = deps/qdjstest
+	url = https://gist.github.com/60bc5bef5678b6c81535.git

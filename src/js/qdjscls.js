@@ -1,1 +1,1 @@
-/Users/andy.ortlieb/Projects/personal/qdjscls/qdjscls.js
+../../deps/qdjscls/qdjscls.js

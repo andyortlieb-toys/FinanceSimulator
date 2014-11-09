@@ -2,48 +2,6 @@
 
 function run(){
 
-	var Exception = Class(Error);
-	var AssertionError = Class(Exception, "AssertionError");
-
-	function assertException(expected, callback){
-		var err;
-		try {
-			callback();
-			throw new AssertionError()
-		}
-		catch (caught){
-			err = caught;
-		}
-
-		if (typeof expected == "function" && err instanceof expected){
-			return;
-		}
-		if (err == expected){
-			return;
-		}
-
-		console.warn("assertException failed", err);
-		throw err;
-	}
-
-	function assert(val, message){
-		if (typeof val == 'function'){
-			val = val();
-		}
-		if (!val){
-			throw new AssertionError(message || "assert() failed");
-		}
-	}
-
-	function assertEq(){
-		if (arguments.length<2){
-			throw new Exception("assertEq requires two or more arguments.")
-		}
-		for (i=1; i<arguments.length; ++i){
-			if (arguments[i] != arguments[0]) throw AssertionError("assertEq failed: "+arguments[i]+" vs "+arguments[0]);
-		}
-	}
-
 	me = new _fisim.types.Person({
 		accounts: [
 			new _fisim.types.accounts.Revenue({name: "Employer"}),
