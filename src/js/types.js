@@ -26,8 +26,8 @@
 		with (exports){
 
 			exc = exports.exc = {};
-			exc.Exception = Class();
-			exc.InterestInvalidDate = Class(exc.Exception, {message: "Could not initialize Interest(): Invalid Date"})
+			exc.Exception = Class(Error);
+			exc.InterestInvalidDate = Class(exc.Exception, "InterestInvalidDate", "Could not initialize Interest(): Invalid Date")
 			exc.UnorderedTransactions = Class(exc.Exception)
 
 			/*
@@ -140,7 +140,7 @@
 				// Returns the sum of all transactions in the history
 				sum: function(){
 					var val = 0;
-					for (i in self.transactionHistory) val += self.transactionHistory.amount;
+					for (i in this.transactionHistory) val += this.transactionHistory[i].amount;
 					return val;
 				},
 
@@ -149,7 +149,26 @@
 					if (typeof date == "undefined") date = new Date();
 					if (!date.getDate()) throw new exc.InvalidDate;
 
+					// Find the start date for this period
+
+
 					console.warn("FIXME: Add support for interest rules (monthly/daily, etc)")
+
+				},
+
+				// @method
+				getBalance: function(date){
+					if (!date){
+						date = this.transactionHistory[this.transactionHistory.length-1];
+					}
+
+					var bal = 0;
+					for (i=0; i < this.transactionHistory.length; ++i){
+						if (this.transactionHistory[i].date > date){ break; }
+						bal += this.transactionHistory[i].amount;
+					}
+
+					return bal;
 				},
 
 				// @prop
