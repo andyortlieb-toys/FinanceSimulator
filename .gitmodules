@@ -4,3 +4,6 @@
 [submodule "deps/qdjstest"]
 	path = deps/qdjstest
 	url = https://gist.github.com/60bc5bef5678b6c81535.git
+[submodule "deps/qdjsbinsearch"]
+	path = deps/qdjsbinsearch
+	url = https://gist.github.com/b5427c8c70be4d0d0d61.git

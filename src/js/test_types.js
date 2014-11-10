@@ -1,8 +1,10 @@
 // Make some accounts
+0;
+(function(globals){
+	"use strict";
+	var fred;
 
-function run(){
-
-	me = new _fisim.types.Person({
+	fred = new _fisim.types.Person({
 		accounts: [
 			new _fisim.types.accounts.Revenue({name: "Employer"}),
 
@@ -21,33 +23,33 @@ function run(){
 
 	});
 
-	console.log("Intitial worth", me.worth())
+	console.log("Intitial worth", fred.worth())
 
-	me.findAccount('discover').give(200)
-	console.log("Worth after paying 200 to discover", me.worth())
+	fred.findAccount('discover').give(200)
+	console.log("Worth after paying 200 to discover", fred.worth())
 	
-	me.findAccount('citi').take(300)
-	console.log("Worth after taking 300 from citi", me.worth())
+	fred.findAccount('citi').take(300)
+	console.log("Worth after taking 300 from citi", fred.worth())
 
-	me.findAccount("CD Account").give(500)
-	console.log("Worth after depositing 500 to CD", me.worth())
+	fred.findAccount("CD Account").give(500)
+	console.log("Worth after depositing 500 to CD", fred.worth())
 
-	me.findAccount("Checking Account").take(83.50)
-	console.log("Worth after withdrawing 84.50 from the checking account", me.worth())
+	fred.findAccount("Checking Account").take(83.50)
+	console.log("Worth after withdrawing 84.50 from the checking account", fred.worth())
 
 
 	// Test out some transaction stuff
-	var citi = me.findAccount("citi");
+	var citi = fred.findAccount("citi");
 
-	console.log("Before exception", me.worth());
-	var before = me.worth();
+	console.log("Before exception", fred.worth());
+	var before = fred.worth();
 	assertException( _fisim.types.exc.Exception, function(){
 		var yesterday = new Date()
 		yesterday.setDate(yesterday.getDate()-1)
 		citi.take(83.50, yesterday)
 	});
-	var after = me.worth();
-	console.log("After exception", me.worth());
+	var after = fred.worth();
+	console.log("After exception", fred.worth());
 	assert(before == after);
 
 	var day0 = new Date();
@@ -99,12 +101,16 @@ function run(){
 	assert(citi.balance == 0);
 
 	// test getBalance history.
-	console.log(day1_0, day1_1, day2, day3);
-	console.log(citi.getBalance(day1_0), citi.getBalance(day1_1), citi.getBalance(day2), citi.getBalance(day3), citi.getBalance(day4));
+	console.log(day1_0, citi.getBalance(day1_0), day1_1, citi.getBalance(day1_1), day2, citi.getBalance(day2), day3, citi.getBalance(day3), day4, citi.getBalance(day4));
 
+	// Advance another day
+	var day5 = new Date(day4);
+	day5.setDate(day5.getDate()+1);
 
+	// Get the value of the period between day 3 and day4
+	console.log("Period between day3 and day4");
+	console.log(citi.getPeriod(day2, day5));
 
+	return fred;
+})(this);
 
-
-	return me;
-}

@@ -150,8 +150,6 @@
 					if (!date.getDate()) throw new exc.InvalidDate;
 
 					// Find the start date for this period
-
-
 					console.warn("FIXME: Add support for interest rules (monthly/daily, etc)")
 
 				},
@@ -169,6 +167,43 @@
 					}
 
 					return bal;
+				},
+
+				// @method
+				firstDateGTE: function(date){
+					var
+						min = 0,
+						max = this.transactionHistory.length -1,
+						curidx = max,
+						candidate
+					;
+
+					if (){
+
+					}
+
+					return candidate;
+
+				}:
+
+				// @method
+				lastDateLTE: function(date){
+
+				}
+
+				// @method
+				getPeriod: function(start, end){
+					var transactions = [];
+					for (var i in this.transactionHistory){
+						console.log("loops", i);
+						console.log(this.transactionHistory[i].date, start, end)
+						if (this.transactionHistory[i] > end){ console.log("break"); break; }
+						if (this.transactionHistory[i].date > start){
+							transactions.push(this.transactionHistory[i]);
+						}
+					}
+
+					return transactions;
 				},
 
 				// @prop
