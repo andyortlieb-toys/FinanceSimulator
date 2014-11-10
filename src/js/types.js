@@ -80,15 +80,11 @@
 					this.transactionHistory = [];
 					this.interestHistory = [];
 					this.startingBalance = this.startingBalance || 0;
-					this.balance = this.balance || this.startingBalance;
+					this.balance = 0;
 
-					this._pushAscending(this.transactionHistory,
-								   new Transaction({amount: this.startingBalance, note: "Starting Balance"}),
-								   "date");
+					this.transaction(this.startingBalance, "Starting Balance");
 					if (this.startingBalance != this.balance) {
-						this._pushAscending(this.transactionHistory,
-									   new Transaction({amount: this.balance-this.startingBalance, note: "Balance Adjustment"}),
-									   "date");
+						this.transaction(this.balance-this.startingBalance, "Starting Balance Adjustment");
 					}
 
 				},
