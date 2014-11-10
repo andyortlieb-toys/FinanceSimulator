@@ -113,7 +113,7 @@
 				transaction: function(amount, date, note){
 					this.init()
 					this._pushAscending(this.transactionHistory,
-								   new Transaction({amount:amount, date:date, note:note}),
+								   new Transaction({amount:amount, balance:this.balance+amount, date:date, note:note}),
 								   "date");
 					this.balance += amount
 				},
@@ -155,7 +155,7 @@
 				},
 
 				// @method
-				getBalance: function(date){
+				calcBalance: function(date){
 					if (!date){
 						date = this.transactionHistory[this.transactionHistory.length-1];
 					}
@@ -179,6 +179,20 @@
 					});
 					for (var i in res){ ret.push(this.transactionHistory[res[i]]); }
 					return ret;
+				},
+
+				// @method
+				getPeriodNet: function(start, end){
+					var val = 0;
+					this.getPeriod(start, end).forEach(function(it){
+						val += it.amount;
+					});
+					return val;
+				},
+
+				// @method
+				getPeriodNetWorth: function(start, end){
+					return this.getPeriodNet(start, end) * this.balanceType;
 				},
 
 				// @prop

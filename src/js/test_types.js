@@ -65,8 +65,8 @@
 	var day2 = new Date();
 	day2.setDate(day2.getDate()+1);
 	var day2balanceprop = citi.balance;
-	var day2balancemeth = citi.getBalance();
-	var day2balancemethdate = citi.getBalance(day2);
+	var day2balancemeth = citi.calcBalance();
+	var day2balancemethdate = citi.calcBalance(day2);
 
 	console.log("Starting balance on day2", day2balanceprop, day2balancemeth, day2balancemethdate);
 	assertEq(day2balanceprop, day2balancemeth, day2balancemethdate);
@@ -80,8 +80,8 @@
 	var day3 = new Date();
 	day3.setDate(day3.getDate()+2);
 	var day3balanceprop = citi.balance;
-	var day3balancemeth = citi.getBalance();
-	var day3balancemethdate = citi.getBalance(day3);
+	var day3balancemeth = citi.calcBalance();
+	var day3balancemethdate = citi.calcBalance(day3);
 
 	console.log("Starting balance on day3", day3balanceprop, day3balancemeth, day3balancemethdate);
 	assertEq(day3balanceprop, day3balancemeth, day3balancemethdate);
@@ -100,8 +100,10 @@
 
 	assert(citi.balance == 0);
 
-	// test getBalance history.
-	console.log(day1_0, citi.getBalance(day1_0), day1_1, citi.getBalance(day1_1), day2, citi.getBalance(day2), day3, citi.getBalance(day3), day4, citi.getBalance(day4));
+	citi.take("35.22", day4);
+
+	// test calcBalance history.
+	console.log(day1_0, citi.calcBalance(day1_0), day1_1, citi.calcBalance(day1_1), day2, citi.calcBalance(day2), day3, citi.calcBalance(day3), day4, citi.calcBalance(day4));
 
 	// Advance another day
 	var day5 = new Date(day4);
@@ -109,10 +111,13 @@
 
 	// Get the value of the period between day 3 and day4
 	console.log("Period between day3 and day4");
-	console.log("getPeriod", citi.getPeriod(day2, day5));
+	console.log("getPeriod", day1_0, day4, citi.getPeriod(day1_0, day4));
+	console.log("getPeriodNet", day1_0, day4, citi.getPeriodNet(day1_0, day4));
+	console.log("getPeriodNetWorth", day1_0, day4, citi.getPeriodNetWorth(day1_0, day4));
+	console.log("citi balance, now.", citi.balance, citi.calcBalance());
 	console.log(citi.transactionHistory);
 
-	
+
 
 	return fred;
 })(this);
