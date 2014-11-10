@@ -109,7 +109,10 @@
 
 	// Get the value of the period between day 3 and day4
 	console.log("Period between day3 and day4");
-	console.log(citi.getPeriod(day2, day5));
+	console.log("getPeriod", citi.getPeriod(day2, day5));
+	console.log(citi.transactionHistory);
+
+	
 
 	return fred;
 })(this);

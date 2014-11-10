@@ -171,17 +171,14 @@
 
 				// @method
 				getPeriod: function(start, end){
-					var transactions = [];
-					for (var i in this.transactionHistory){
-						console.log("loops", i);
-						console.log(this.transactionHistory[i].date, start, end)
-						if (this.transactionHistory[i] > end){ console.log("break"); break; }
-						if (this.transactionHistory[i].date > start){
-							transactions.push(this.transactionHistory[i]);
-						}
-					}
-
-					return transactions;
+					var ret = [];
+					var res = binaryFindAll(this.transactionHistory, function(it){
+			            if (it.date < start) return -1;
+			            if (it.date > end) return 1;
+			            return 0;
+					});
+					for (var i in res){ ret.push(this.transactionHistory[res[i]]); }
+					return ret;
 				},
 
 				// @prop
