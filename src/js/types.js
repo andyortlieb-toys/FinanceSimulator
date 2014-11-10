@@ -170,28 +170,6 @@
 				},
 
 				// @method
-				firstDateGTE: function(date){
-					var
-						min = 0,
-						max = this.transactionHistory.length -1,
-						curidx = max,
-						candidate
-					;
-
-					if (){
-
-					}
-
-					return candidate;
-
-				}:
-
-				// @method
-				lastDateLTE: function(date){
-
-				}
-
-				// @method
 				getPeriod: function(start, end){
 					var transactions = [];
 					for (var i in this.transactionHistory){
