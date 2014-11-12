@@ -42,6 +42,7 @@
 
 				// Expenses
 				new _fisim.types.accounts.Expense({name: "Utilities", date:date}),
+				new _fisim.types.accounts.Expense({name: "Maintenance", date:date}),
 				new _fisim.types.accounts.Expense({name: "Entertainment", date:date})
 			]
 		});
@@ -207,19 +208,33 @@
 
 				// Monday
 				case 1:
-
+					// We have a case of the mondays--too tired to go out to lunch.
+					// Fill up on gas.
+					tmpval = rndVal(50,65,2);
+					LOSE(tmpval);
+					fred.findAccount("checking").take(tmpval, evening, "Gas up!");
+					fred.findAccount("Maintenance").give(tmpval, evening, "Gas up!");
 					break;
 
-				// Tu
+				// Tu-Th, ordinary week days.
 				case 2:
-					break;
-
-				// We
 				case 3:
-					break;
-
-				// Th
 				case 4:
+					// Go out for lunch?
+					if (yesno(-3)){
+						tmpval = rndVal(13,28,2);
+						LOSE(tmpval);
+						fred.findAccount("checking").take(tmpval, noon, "Going out with colleagues for lunch.")
+						fred.findAccount("Entertainment").give(tmpval, noon, "Going out with colleagues for lunch.")
+					}
+
+					// Order pizza to bring home?
+					if (yesno(-6)){
+						tmpval = rndVal(29,38,2);
+						LOSE(tmpval);
+						fred.findAccount("checking").take(tmpval, noon, "Too tired to cook, order pizza!")
+						fred.findAccount("Entertainment").give(tmpval, noon, "Too tired to cook, order pizza!")
+					}
 					break;
 
 				// Fr
@@ -236,10 +251,11 @@
 					}
 
 					// Should we take the whole family out for dinner?
-					if (yesno(0)){
+					if (yesno(-2)){
 						tmpval = rndVal(30,55,2);
 						LOSE(tmpval);
-						fred.findAccount("Entertainment").give("tmpval", evening, "Whole family, going out to eat!");
+						fred.findAccount("checking").take(tmpval, evening, "Whole family, going out to eat!");
+						fred.findAccount("Entertainment").give(tmpval, evening, "Whole family, going out to eat!");
 					}
 					LOSE(tmpval);
 
@@ -247,8 +263,19 @@
 
 				// Sa
 				case 6:
-					if (payweek){
-						// Pay some bills
+					if (payweek){ // We got paid, so let's pay bills
+						if (today.getDate() < 8){ // Get all the monthly bills
+							// Mortgage
+							fred.findAccount("checking").take(mortgage, morning, "Mortgage payment");
+							fred.findAccount("mortgage").give(mortgage, morning, "Mortgage payment");
+
+							// Energy
+							tmpval = rndVal(80,200,2);
+							LOSE(tmpval);
+							fred.findAccount("checking").take(tmpval, evening, "Energy");
+							fred.findAccount("Utilities").give(tmpval, evening, "Energy");
+
+						}
 					} else {
 						//
 					}
@@ -256,6 +283,7 @@
 
 				// Sunday
 				case 0:
+
 					break;
 			}
 		}
