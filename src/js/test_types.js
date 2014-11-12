@@ -3,6 +3,18 @@
 (function(globals){
 	"use strict";
 
+	function yesno(prob){
+		var prob = prob || 1;
+		var reach = Math.abs(prob)+1;
+		var val = Math.floor((Math.random() * reach) + 1)-1;
+		if (prob < 0){ return val==0; }
+		return !!val;
+	}
+
+	function rndVal(low, high, precision){
+		return parseFloat((Math.random() * (high - low) + low).toFixed(precision))
+	}
+
 	function makeFred(date){
 		date = date || new Date();
 		return new _fisim.types.Person({
@@ -191,6 +203,7 @@
 
 				// Monday
 				case 1:
+
 					break;
 
 				// Tu
@@ -243,7 +256,9 @@
 	globals.test_fisim = {
 		makeFred: makeFred,
 		figureItOut: figureItOut,
-		timelineTest: timelineTest
+		timelineTest: timelineTest,
+		yesno: yesno,
+		rndVal: rndVal
 	};
 })(this);
 
