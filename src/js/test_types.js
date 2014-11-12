@@ -4,7 +4,7 @@
 	"use strict";
 
 	function yesno(prob){
-		var prob = prob || 1;
+		var prob = prob || (prob===0?0:1);
 		var reach = Math.abs(prob)+1;
 		var val = Math.floor((Math.random() * reach) + 1)-1;
 		if (prob < 0){ return val==0; }
@@ -158,7 +158,11 @@
 			balance = 0,
 			startingBalance = fred.worth(),
 			payweek = 0,
-			morning, noon, evening
+			morning, noon, evening,
+
+			paycheck = 1300,
+			mortgage = 600,
+			tmpval
 		;
 
 		function EARN(amount){
@@ -198,7 +202,7 @@
 			// Does Fred get paid this week?
 			if (today.getDay()==1){	payweek = (payweek + 1) % 2; }
 
-			// Run some scenarios...
+			// Run a couple years worth of finances scenarios...
 			switch (today.getDay()){
 
 				// Monday
@@ -222,10 +226,23 @@
 				case 5:
 					if (payweek){
 						// F.B.G.P!!!
+						EARN(paycheck);
+						console.log("PAy Day!");
+						fred.findAccount("employer").take(paycheck, today, "Pay Day!");
+						fred.findAccount("checking").give(paycheck, today, "Pay Day!");
 
 					} else {
 						// Normal business
 					}
+
+					// Should we take the whole family out for dinner?
+					if (yesno(0)){
+						tmpval = rndVal(30,55,2);
+						LOSE(tmpval);
+						fred.findAccount("Entertainment").give("tmpval", evening, "Whole family, going out to eat!");
+					}
+					LOSE(tmpval);
+
 					break;
 
 				// Sa
