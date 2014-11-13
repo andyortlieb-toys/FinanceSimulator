@@ -148,8 +148,14 @@
 
 	};
 
-	function timelineTest(){
-		console.log("Starting timeline test");
+	function timelineTest(quiet){
+		var konsole = console;
+		if (quiet){
+			konsole = {
+				log: function(){}
+			};
+		}
+		konsole.log("Starting timeline test");
 		var
 			today = new Date("2010-01-01T00:00:01-0600"),
 			fred = makeFred(today),
@@ -245,7 +251,7 @@
 					if (payweek){
 						// F.B.G.P!!!
 						EARN(paycheck);
-						console.log("PAy Day!");
+						konsole.log("PAy Day!");
 						fred.findAccount("employer").take(paycheck, today, "Pay Day!");
 						fred.findAccount("checking").give(paycheck, today, "Pay Day!");
 
@@ -307,7 +313,7 @@
 			parseFloat(fred.worth().toFixed(2))
 		);
 
-		console.log("Passed!")
+		konsole.log("Passed!")
 
 		return {
 			days: days,
