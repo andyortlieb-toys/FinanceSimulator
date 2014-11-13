@@ -156,13 +156,14 @@
 			days = [],
 			gains = 0,
 			losses = 0,
-			balance = 0,
 			startingBalance = fred.worth(),
+			balance = startingBalance,
 			payweek = 0,
 			morning, noon, evening,
 
 			paycheck = 1300,
 			mortgage = 600,
+			txcount = 0,
 			tmpval
 		;
 
@@ -171,6 +172,7 @@
 			today.balance += amount;
 			gains += amount;
 			today.gains += amount;
+			++txcount;
 		}
 
 		function LOSE(amount){
@@ -178,6 +180,7 @@
 			today.balance -= amount;
 			losses += amount;
 			today.losses += amount;
+			++txcount;
 		}
 
 		// Set up day-zero
@@ -257,7 +260,6 @@
 						fred.findAccount("checking").take(tmpval, evening, "Whole family, going out to eat!");
 						fred.findAccount("Entertainment").give(tmpval, evening, "Whole family, going out to eat!");
 					}
-					LOSE(tmpval);
 
 					break;
 
@@ -283,10 +285,29 @@
 
 				// Sunday
 				case 0:
+					if (yesno(-2)){
+						tmpval = rndVal(16,30,2);
+						LOSE(tmpval);
+						fred.findAccount("checking").take(tmpval, morning, "Sunday Brunch");
+						fred.findAccount("Entertainment").give(tmpval, morning, "Sunday Brunch");
+					}
 
 					break;
 			}
 		}
+
+		assertEq(
+			// The running tally
+			parseFloat((balance).toFixed(2)),
+
+			// The sum of everything we know happened.
+			parseFloat((startingBalance+gains-losses).toFixed(2)),
+
+			// The aggregate of accounts.
+			parseFloat(fred.worth().toFixed(2))
+		);
+
+		console.log("Passed!")
 
 		return {
 			days: days,
@@ -294,7 +315,8 @@
 			balance: balance,
 			gains: gains,
 			losses: losses,
-			startingBalance: startingBalance
+			startingBalance: startingBalance,
+			txcount: txcount
 		}
 	};
 
