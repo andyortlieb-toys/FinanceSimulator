@@ -24,7 +24,7 @@
 		;
 
 		with (exports){
-
+			currency = exports.currency = {};
 			exc = exports.exc = {};
 			exc.Exception = Class(Error);
 			exc.InterestInvalidDate = Class(exc.Exception, "InterestInvalidDate", "Could not initialize Interest(): Invalid Date")
@@ -41,19 +41,24 @@
 			}
 
 			// @class
+		 	currency.USD = function(val){
+		 		return parseFloat((val).toFixed(2));
+		 	};
+
+			// @class
 			exports.Transaction = Class({
 				init: function(){
 					if (typeof this.amount != "number") this.amount = 0;
 					if (!(this.date instanceof Date)) this.date = new Date();
 				}
-			})
+			});
 
 			// @class
 			exports.Interest = Class({
 				init: function(){
 					if (!date.getDate()) throw InterestInvalidDate;
 				}
-			})
+			});
 
 			// function Hive(){
 			// 	var hive = {
@@ -250,6 +255,7 @@
 					this.accounts = this.accounts || {}
 					for (var k in this.accounts) if (!(this.accounts[k] instanceof exports.Account)) throw "This is not an Account: "+k
 				},
+
 				// @method
 				// Calculates the current worth of this Entity
 				worth: function(){
@@ -259,6 +265,27 @@
 					}
 					return val;
 				},
+
+				// @method
+				// Aggrate, calculate the balance @ this date
+				calcBalance: function(date){
+					var val = 0;
+					for (var k in this.accounts){
+						val += (this.accounts[k].calcBalance(date) * this.accounts[k].balanceType);
+					}
+					return val;
+				},
+
+				// @method
+				getPeriodNetWorth: function(start, end){
+
+					var val = 0;
+					for (var k in this.accounts){
+						val += (this.accounts[k].getPeriodNetWorth(start, end));
+					}
+					return val;
+				},				
+
 				// @method
 				// Finds an account by name
 				findAccount: function(name){

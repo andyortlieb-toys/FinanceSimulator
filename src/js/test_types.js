@@ -170,8 +170,26 @@
 			paycheck = 1300,
 			mortgage = 600,
 			txcount = 0,
-			tmpval
+			tmpval,
+
+			samplePeriodTestStartDate = new Date("2010-06-01T00:00:01-0600"),
+			samplePeriodTestEndingDate = new Date("2010-08-15T00:00:01-0600"),
+			samplePeriodTestStartBal = 0,
+			samplePeriodTestAdj = 0
 		;
+
+		function isSamplePeriod(){
+			return (samplePeriodTestStartDate <= today) && (today <= samplePeriodTestEndingDate);
+		}
+		function isSamplePeriodStartDate(){
+			return (
+				(today.getYear()==samplePeriodTestStartDate.getYear())
+				&&
+				(today.getMonth()==samplePeriodTestStartDate.getMonth())
+				&&
+				(today.getDate()==samplePeriodTestStartDate.getDate())
+			);
+		}
 
 		function EARN(amount){
 			balance += amount;
@@ -179,6 +197,9 @@
 			gains += amount;
 			today.gains += amount;
 			++txcount;
+
+			//samplePeriodTest
+			if (isSamplePeriod()){ samplePeriodTestAdj += amount; }
 		}
 
 		function LOSE(amount){
@@ -187,6 +208,9 @@
 			losses += amount;
 			today.losses += amount;
 			++txcount;
+
+			//samplePeriodTest
+			if (isSamplePeriod()){ samplePeriodTestAdj -= amount; }
 		}
 
 		// Set up day-zero
@@ -207,6 +231,9 @@
 			morning = new Date(today); morning.setHours(7);
 			noon = new Date(today); noon.setHours(12);
 			evening = new Date(today); evening.setHours(18);
+
+			// Do we want to get the start balance for the sample period?
+			if (isSamplePeriodStartDate()){ samplePeriodTestStartBal = balance; }
 
 
 			// Does Fred get paid this week?
@@ -305,15 +332,28 @@
 		assertEq(
 			// The running tally
 			parseFloat((balance).toFixed(2)),
-
+			_fisim.types.currency.USD(balance),
 			// The sum of everything we know happened.
 			parseFloat((startingBalance+gains-losses).toFixed(2)),
-
+			_fisim.types.currency.USD(startingBalance+gains-losses),
 			// The aggregate of accounts.
-			parseFloat(fred.worth().toFixed(2))
+			parseFloat(fred.worth().toFixed(2)),
+			_fisim.types.currency.USD(fred.worth())
 		);
+		konsole.log("Ending balances are good")
 
-		konsole.log("Passed!")
+		// does calcBalance with date work?
+		assertEq(
+			_fisim.types.currency.USD(samplePeriodTestStartBal),
+			_fisim.types.currency.USD(fred.calcBalance(samplePeriodTestStartDate))
+		)
+		konsole.log("Snapshot is good")
+
+		assertEq(
+			_fisim.types.currency.USD(samplePeriodTestAdj),
+			_fisim.types.currency.USD(fred.getPeriodNetWorth(samplePeriodTestStartDate, samplePeriodTestEndingDate))
+		)
+		konsole.log("Snapshot & period ranges passed", samplePeriodTestStartBal, samplePeriodTestAdj);
 
 		return {
 			days: days,
@@ -322,7 +362,10 @@
 			gains: gains,
 			losses: losses,
 			startingBalance: startingBalance,
-			txcount: txcount
+			txcount: txcount,
+
+			samplePeriodTestAdj: samplePeriodTestAdj,
+			samplePeriodTestStartBal: samplePeriodTestStartBal
 		}
 	};
 
