@@ -175,9 +175,9 @@
 				getPeriod: function(start, end){
 					var ret = [];
 					var res = binaryFindAll(this.transactionHistory, function(it){
-			            if (it.date < start) return -1;
-			            if (it.date > end) return 1;
-			            return 0;
+			            if (it.date < start) return -1; // Doesn't match.  Look more to the right
+			            if (it.date > end) return 1; // Doesn't match. Look more to the left.
+			            return 0; // Matches. Keep it.
 					});
 					for (var i in res){ ret.push(this.transactionHistory[res[i]]); }
 					return ret;
