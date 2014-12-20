@@ -181,6 +181,7 @@
 
 		function isSamplePeriod(){
 			return (samplePeriodTestStartDate <= today) && (today <= samplePeriodTestEndingDate);
+			//return (samplePeriodTestStartDate.getDate() <= today.getDate()) && (today.getDate() <= samplePeriodTestEndingDate.getDate());
 		}
 		function isSamplePeriodStartDate(){
 			return (
@@ -192,7 +193,7 @@
 			);
 		}
 
-		function EARN(amount){
+		function EARN(amount, timestamp, message){
 			balance += amount;
 			today.balance += amount;
 			gains += amount;
@@ -203,7 +204,8 @@
 			if (isSamplePeriod()){
 				samplePeriodTestAdj += amount;
 				samplePeriodHistory.push({
-					date : new Date(today),
+					date : new Date(timestamp),
+					message: message,
 					count: txcount,
 					change: amount,
 					balance: balance
@@ -211,7 +213,7 @@
 			}
 		}
 
-		function LOSE(amount){
+		function LOSE(amount, timestamp, message){
 			balance -= amount;
 			today.balance -= amount;
 			losses += amount;
@@ -222,7 +224,8 @@
 			if (isSamplePeriod()){
 				samplePeriodTestAdj -= amount;
 				samplePeriodHistory.push({
-					date : new Date(today),
+					date : new Date(timestamp),
+					message: message,
 					count: txcount,
 					change: -amount,
 					balance: balance
@@ -264,9 +267,9 @@
 					// We have a case of the mondays--too tired to go out to lunch.
 					// Fill up on gas.
 					tmpval = rndVal(50,65,2);
-					LOSE(tmpval);
 					fred.findAccount("checking").take(tmpval, evening, "Gas up!");
 					fred.findAccount("Maintenance").give(tmpval, evening, "Gas up!");
+					LOSE(tmpval, evening, "Gas Up!");
 					break;
 
 				// Tu-Th, ordinary week days.
@@ -276,17 +279,17 @@
 					// Go out for lunch?
 					if (yesno(-3)){
 						tmpval = rndVal(13,28,2);
-						LOSE(tmpval);
 						fred.findAccount("checking").take(tmpval, noon, "Going out with colleagues for lunch.")
 						fred.findAccount("Entertainment").give(tmpval, noon, "Going out with colleagues for lunch.")
+						LOSE(tmpval, noon, "Going out with golleagues for lunch");
 					}
 
 					// Order pizza to bring home?
 					if (yesno(-6)){
 						tmpval = rndVal(29,38,2);
-						LOSE(tmpval);
-						fred.findAccount("checking").take(tmpval, noon, "Too tired to cook, order pizza!")
-						fred.findAccount("Entertainment").give(tmpval, noon, "Too tired to cook, order pizza!")
+						fred.findAccount("checking").take(tmpval, evening, "Too tired to cook, order pizza!")
+						fred.findAccount("Entertainment").give(tmpval, evening, "Too tired to cook, order pizza!")
+						LOSE(tmpval, evening, "Too tired to cook, order pizza!");
 					}
 					break;
 
@@ -294,10 +297,10 @@
 				case 5:
 					if (payweek){
 						// F.B.G.P!!!
-						EARN(paycheck);
 						konsole.log("PAy Day!");
 						fred.findAccount("employer").take(paycheck, today, "Pay Day!");
 						fred.findAccount("checking").give(paycheck, today, "Pay Day!");
+						EARN(paycheck, today, "Pay Day!");
 
 					} else {
 						// Normal business
@@ -306,9 +309,9 @@
 					// Should we take the whole family out for dinner?
 					if (yesno(-2)){
 						tmpval = rndVal(30,55,2);
-						LOSE(tmpval);
 						fred.findAccount("checking").take(tmpval, evening, "Whole family, going out to eat!");
 						fred.findAccount("Entertainment").give(tmpval, evening, "Whole family, going out to eat!");
+						LOSE(tmpval, evening, "Whole family, going out to eat!");
 					}
 
 					break;
@@ -323,9 +326,9 @@
 
 							// Energy
 							tmpval = rndVal(80,200,2);
-							LOSE(tmpval);
 							fred.findAccount("checking").take(tmpval, evening, "Energy");
 							fred.findAccount("Utilities").give(tmpval, evening, "Energy");
+							LOSE(tmpval, evening, "Energy");
 
 						}
 					} else {
@@ -388,10 +391,12 @@
 			for (var hk in samplePeriodHistory){
 				var item = samplePeriodHistory[hk];
 				var itemdate = new Date(item.date);
-				itemdate.setSeconds(itemdate.getSeconds()+1)
 				var rangeWorth = fred.getPeriodNetWorth(samplePeriodTestStartDate, itemdate);
 				bal += item.change
-				console.log((rangeWorth==bal?"   :) ":":(    "), "date:", item.date, ", change:", item.change, ",\n obj bal:", item.balance, ", expect bal:", bal, ", range worth:", rangeWorth, "\n\n")
+				console.log(
+					(rangeWorth==bal?"   :) ":":(    "), 
+					"\ndate:", item.date, "message:", item.message, ", change:", item.change,
+					",\n obj bal:", item.balance, ", expect bal:", bal, ", range worth:", rangeWorth, "\n\n")
 			}
 		}
 
