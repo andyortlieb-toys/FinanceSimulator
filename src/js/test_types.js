@@ -369,13 +369,85 @@
 		}
 	};
 
+	function testRangeOperations(quiet){
+		var konsole = console;
+		if (quiet){
+			konsole = {
+				log: function(){}
+			};
+		}
+		konsole.log("Starting timeline test");
+		var
+			today = new Date("2010-01-01T00:00:01-0600"),
+			fred = makeFred(today),
+			days = [],
+			gains = 0,
+			losses = 0,
+			startingBalance = fred.worth(),
+			balance = startingBalance,
+			payweek = 0,
+			morning, noon, evening,
+
+			paycheck = 1300,
+			mortgage = 600,
+			txcount = 0,
+			tmpval,
+
+			samplePeriodTestStartDate = new Date("2010-06-01T00:00:01-0600"),
+			samplePeriodTestEndingDate = new Date("2010-06-04T00:00:01-0600"),
+			samplePeriodTestStartBal = 0,
+			samplePeriodTestAdj = 0
+		;
+
+		function isSamplePeriod(){
+			return (samplePeriodTestStartDate <= today) && (today <= samplePeriodTestEndingDate);
+		}
+
+		function getSamplePeriodWorth(){
+			return fred.getPeriodNetWorth(samplePeriodTestStartDate, samplePeriodTestEndingDate);
+		}
+
+		konsole.log(
+			"Sample Period: ",
+			samplePeriodTestStartDate,
+			"-",
+			samplePeriodTestEndingDate,
+			"Starting Sample Period Worth",
+			getSamplePeriodWorth()
+		);
+
+		fred.findAccount("savings").give(1, new Date("2010-06-01T00:00:00-0600"));
+		assertEq(getSamplePeriodWorth(), 0);
+
+		fred.findAccount("savings").give(1, new Date("2010-06-01T00:00:01-0600"));
+		assertEq(getSamplePeriodWorth(), 1);
+
+		fred.findAccount("savings").give(1, new Date("2010-06-01T12:00:00-0600"));
+		assertEq(getSamplePeriodWorth(), 2);
+
+		fred.findAccount("savings").give(1, new Date("2010-06-02T00:00:00-0600"));
+		assertEq(getSamplePeriodWorth(), 3);
+
+		fred.findAccount("savings").give(1, new Date("2010-06-04T00:00:00-0600"));
+		assertEq(getSamplePeriodWorth(), 4);
+
+		fred.findAccount("savings").give(1, new Date("2010-06-04T00:00:01-0600"));
+		assertEq(getSamplePeriodWorth(), 5);
+
+		fred.findAccount("savings").give(1, new Date("2010-06-04T00:00:02-0600"));
+		assertEq(getSamplePeriodWorth(), 5);
+
+	}
+
 	globals.test_fisim = {
 		makeFred: makeFred,
 		figureItOut: figureItOut,
 		timelineTest: timelineTest,
+		testRangeOperations: testRangeOperations,
 		yesno: yesno,
 		rndVal: rndVal
 	};
+ 
 })(this);
 
 
