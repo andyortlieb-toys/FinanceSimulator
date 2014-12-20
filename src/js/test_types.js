@@ -175,7 +175,8 @@
 			samplePeriodTestStartDate = new Date("2010-06-01T00:00:01-0600"),
 			samplePeriodTestEndingDate = new Date("2010-08-15T00:00:01-0600"),
 			samplePeriodTestStartBal = 0,
-			samplePeriodTestAdj = 0
+			samplePeriodTestAdj = 0,
+			samplePeriodHistory = []
 		;
 
 		function isSamplePeriod(){
@@ -199,7 +200,15 @@
 			++txcount;
 
 			//samplePeriodTest
-			if (isSamplePeriod()){ samplePeriodTestAdj += amount; }
+			if (isSamplePeriod()){
+				samplePeriodTestAdj += amount;
+				samplePeriodHistory.push({
+					date : new Date(today),
+					count: txcount,
+					change: amount,
+					balance: balance
+				})
+			}
 		}
 
 		function LOSE(amount){
@@ -210,7 +219,15 @@
 			++txcount;
 
 			//samplePeriodTest
-			if (isSamplePeriod()){ samplePeriodTestAdj -= amount; }
+			if (isSamplePeriod()){
+				samplePeriodTestAdj -= amount;
+				samplePeriodHistory.push({
+					date : new Date(today),
+					count: txcount,
+					change: amount,
+					balance: balance
+				})
+			}
 		}
 
 		// Set up day-zero
@@ -329,31 +346,41 @@
 			}
 		}
 
-		assertEq(
-			// The running tally
-			parseFloat((balance).toFixed(2)),
-			_fisim.types.currency.USD(balance),
-			// The sum of everything we know happened.
-			parseFloat((startingBalance+gains-losses).toFixed(2)),
-			_fisim.types.currency.USD(startingBalance+gains-losses),
-			// The aggregate of accounts.
-			parseFloat(fred.worth().toFixed(2)),
-			_fisim.types.currency.USD(fred.worth())
-		);
-		konsole.log("Ending balances are good")
+		try {
 
-		// does calcBalance with date work?
-		assertEq(
-			_fisim.types.currency.USD(samplePeriodTestStartBal),
-			_fisim.types.currency.USD(fred.calcBalance(samplePeriodTestStartDate))
-		)
-		konsole.log("Snapshot is good")
+			assertEq(
+				// The running tally
+				parseFloat((balance).toFixed(2)),
+				_fisim.types.currency.USD(balance),
+				// The sum of everything we know happened.
+				parseFloat((startingBalance+gains-losses).toFixed(2)),
+				_fisim.types.currency.USD(startingBalance+gains-losses),
+				// The aggregate of accounts.
+				parseFloat(fred.worth().toFixed(2)),
+				_fisim.types.currency.USD(fred.worth())
+			);
+			konsole.log("Ending balances are good")
 
-		assertEq(
-			_fisim.types.currency.USD(samplePeriodTestAdj),
-			_fisim.types.currency.USD(fred.getPeriodNetWorth(samplePeriodTestStartDate, samplePeriodTestEndingDate))
-		)
-		konsole.log("Snapshot & period ranges passed", samplePeriodTestStartBal, samplePeriodTestAdj);
+			// does calcBalance with date work?
+			assertEq(
+				_fisim.types.currency.USD(samplePeriodTestStartBal),
+				_fisim.types.currency.USD(fred.calcBalance(samplePeriodTestStartDate))
+			)
+			konsole.log("Snapshot is good")
+
+
+			assertEq(
+				_fisim.types.currency.USD(samplePeriodTestAdj),
+				_fisim.types.currency.USD(fred.getPeriodNetWorth(samplePeriodTestStartDate, samplePeriodTestEndingDate))
+			)
+			konsole.log("Snapshot & period ranges passed", samplePeriodTestStartBal, samplePeriodTestAdj);
+
+			konsole.log("\n*\n*\n*\n   -- Tests Passed -- \n*\n*\n*\n")
+
+		} catch(err) {
+
+			konsole.error("Aww shoot, tests failed")
+		}
 
 		return {
 			days: days,
@@ -365,7 +392,8 @@
 			txcount: txcount,
 
 			samplePeriodTestAdj: samplePeriodTestAdj,
-			samplePeriodTestStartBal: samplePeriodTestStartBal
+			samplePeriodTestStartBal: samplePeriodTestStartBal,
+			samplePeriodHistory: samplePeriodHistory
 		}
 	};
 
