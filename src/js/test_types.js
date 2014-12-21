@@ -159,6 +159,7 @@
 		var
 			today = new Date("2010-01-01T00:00:01-0600"),
 			fred = makeFred(today),
+			fredInitialTxCount = fred.getTransactions().length,
 			days = [],
 			gains = 0,
 			losses = 0,
@@ -248,6 +249,22 @@
 				samplePeriodHistory.push(tx)
 			}
 		}
+
+
+		function EXCHANGE(amount, timestamp, message){
+			++txcount;
+
+			var tx = {
+					date : new Date(timestamp),
+					message: message,
+					count: txcount,
+					change: 0,
+					balance: balance
+				}
+
+			completeHistory.push(tx);
+		}
+
 
 		// Set up day-zero
 		today = new Date(today);
@@ -339,6 +356,7 @@
 							// Mortgage
 							fred.findAccount("checking").take(mortgage, morning, "Mortgage payment");
 							fred.findAccount("mortgage").give(mortgage, morning, "Mortgage payment");
+							EXCHANGE(mortgage, morning, "Mortgage payment");
 
 							// Energy
 							tmpval = rndVal(80,200,2);
@@ -393,11 +411,23 @@
 			)
 			konsole.log("Snapshot & period ranges passed", samplePeriodTestStartBal, samplePeriodTestAdj);
 
+			// does Entity.getTransactions() add up, and look right?
+			var allTransactions = fred.getTransactions(0,Infinity);
+			for (var i = 0; i+1<allTransactions.length; ++i){
+				assert(
+					allTransactions[i].date.getTime() <= allTransactions[i+1].date.getTime(),
+					("Testing: "+allTransactions[i].date+"<="+allTransactions[i+1].date) // Message
+				);
+			}
+			assertEq(allTransactions.length, (txcount*2)+fredInitialTxCount);
+			konsole.log("getTransactions is appropriately sorted, and complete.")
+
 			konsole.log("\n*\n*\n*\n   -- Tests Passed -- \n*\n*\n*\n")
 
 		} catch(err) {
 
-			konsole.error("Aww shoot, tests failed")
+			konsole.error(err);
+			konsole.error("Aww shoot, tests failed");
 
 		}
 
