@@ -172,8 +172,8 @@
 			txcount = 0,
 			tmpval,
 
-			samplePeriodTestStartDate = new Date("2010-06-01T00:00:01-0600"),
-			samplePeriodTestEndingDate = new Date("2010-08-15T22:59:59-0600"),
+			samplePeriodTestStartDate = new Date("2010-06-01T00:00:01-0500"),
+			samplePeriodTestEndingDate = new Date("2010-08-15T22:59:59-0500"),
 			samplePeriodTestStartBal = 0,
 			samplePeriodTestAdj = 0,
 			samplePeriodHistory = [],
@@ -192,8 +192,13 @@
 
 
 		function isSamplePeriod(){
-			return (samplePeriodTestStartDate <= today) && (today <= samplePeriodTestEndingDate);
-			//return (samplePeriodTestStartDate.getDate() <= today.getDate()) && (today.getDate() <= samplePeriodTestEndingDate.getDate());
+			var result = (samplePeriodTestStartDate <= today) && (today <= samplePeriodTestEndingDate);
+			if (!result && isSamplePeriodStartDate()){
+				console.log("\n\n\n\n\n DANGER DANGER DANGER", samplePeriodTestStartDate, today);
+				console.log(samplePeriodTestStartDate.getTime(), today.getTime())
+				console.log("\n\n\n\n\n\n")
+			}
+			return result;
 		}
 
 		function EARN(amount, timestamp, message){
@@ -456,8 +461,8 @@
 			txcount = 0,
 			tmpval,
 
-			samplePeriodTestStartDate = new Date("2010-06-01T00:00:01-0600"),
-			samplePeriodTestEndingDate = new Date("2010-06-04T00:00:01-0600"),
+			samplePeriodTestStartDate = new Date("2010-06-01T00:00:01-0500"),
+			samplePeriodTestEndingDate = new Date("2010-06-04T00:00:01-0500"),
 			samplePeriodTestStartBal = 0,
 			samplePeriodTestAdj = 0
 		;
@@ -475,55 +480,55 @@
 			getSamplePeriodWorth()
 		);
 
-		fred.findAccount("savings").give(1, new Date("2010-06-01T00:00:00-0600"));
+		fred.findAccount("savings").give(1, new Date("2010-06-01T00:00:00-0500"));
 		assertEq(getSamplePeriodWorth(), 0);
 
-		fred.findAccount("savings").give(1, new Date("2010-06-01T00:00:01-0600"));
+		fred.findAccount("savings").give(1, new Date("2010-06-01T00:00:01-0500"));
 		assertEq(getSamplePeriodWorth(), 1);
 
-		fred.findAccount("savings").give(1, new Date("2010-06-01T12:00:00-0600"));
+		fred.findAccount("savings").give(1, new Date("2010-06-01T12:00:00-0500"));
 		assertEq(getSamplePeriodWorth(), 2);
 
-		fred.findAccount("savings").give(1, new Date("2010-06-02T00:00:00-0600"));
+		fred.findAccount("savings").give(1, new Date("2010-06-02T00:00:00-0500"));
 		assertEq(getSamplePeriodWorth(), 3);
 
-		fred.findAccount("savings").give(1, new Date("2010-06-04T00:00:00-0600"));
+		fred.findAccount("savings").give(1, new Date("2010-06-04T00:00:00-0500"));
 		assertEq(getSamplePeriodWorth(), 4);
 
-		fred.findAccount("savings").give(1, new Date("2010-06-04T00:00:00-0600"));
+		fred.findAccount("savings").give(1, new Date("2010-06-04T00:00:00-0500"));
 		assertEq(getSamplePeriodWorth(), 5);
 
-		fred.findAccount("savings").give(1, new Date("2010-06-04T00:00:00-0600"));
+		fred.findAccount("savings").give(1, new Date("2010-06-04T00:00:00-0500"));
 		assertEq(getSamplePeriodWorth(), 6);
 
-		fred.findAccount("savings").give(1, new Date("2010-06-04T00:00:00-0600"));
+		fred.findAccount("savings").give(1, new Date("2010-06-04T00:00:00-0500"));
 		assertEq(getSamplePeriodWorth(), 7);
 
-		fred.findAccount("savings").give(1, new Date("2010-06-04T00:00:00-0600"));
+		fred.findAccount("savings").give(1, new Date("2010-06-04T00:00:00-0500"));
 		assertEq(getSamplePeriodWorth(), 8);
 
-		fred.findAccount("savings").give(1, new Date("2010-06-04T00:00:00-0600"));
+		fred.findAccount("savings").give(1, new Date("2010-06-04T00:00:00-0500"));
 		assertEq(getSamplePeriodWorth(), 9);
 
-		fred.findAccount("savings").give(1, new Date("2010-06-04T00:00:00-0600"));
+		fred.findAccount("savings").give(1, new Date("2010-06-04T00:00:00-0500"));
 		assertEq(getSamplePeriodWorth(), 10);
 
-		fred.findAccount("savings").give(1, new Date("2010-06-04T00:00:00-0600"));
+		fred.findAccount("savings").give(1, new Date("2010-06-04T00:00:00-0500"));
 		assertEq(getSamplePeriodWorth(), 11);
 
-		fred.findAccount("savings").give(1, new Date("2010-06-04T00:00:00-0600"));
+		fred.findAccount("savings").give(1, new Date("2010-06-04T00:00:00-0500"));
 		assertEq(getSamplePeriodWorth(), 12);
 
-		fred.findAccount("savings").give(1, new Date("2010-06-04T00:00:00-0600"));
+		fred.findAccount("savings").give(1, new Date("2010-06-04T00:00:00-0500"));
 		assertEq(getSamplePeriodWorth(), 13);
 
-		fred.findAccount("savings").give(1, new Date("2010-06-04T00:00:00-0600"));
+		fred.findAccount("savings").give(1, new Date("2010-06-04T00:00:00-0500"));
 		assertEq(getSamplePeriodWorth(), 14);
 
-		fred.findAccount("savings").give(1, new Date("2010-06-04T00:00:01-0600"));
+		fred.findAccount("savings").give(1, new Date("2010-06-04T00:00:01-0500"));
 		assertEq(getSamplePeriodWorth(), 15);
 
-		fred.findAccount("savings").give(1, new Date("2010-06-04T00:00:02-0600"));
+		fred.findAccount("savings").give(1, new Date("2010-06-04T00:00:02-0500"));
 		assertEq(getSamplePeriodWorth(), 15);
 
 	}
