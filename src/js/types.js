@@ -18,6 +18,24 @@
 		typesLib as a function allows us to decide whether or not to invoke it as AMD.
 
 	*/
+
+	/**************************************************************************
+	 * I was lazy here.
+	 * Thank you Micheal Liu, http://stackoverflow.com/a/11252167
+	 */
+	function treatAsUTC(date) {
+	    var result = new Date(date);
+	    result.setMinutes(result.getMinutes() - result.getTimezoneOffset());
+	    return result;
+	}
+	function daysBetween(startDate, endDate) {
+	    var millisecondsPerDay = 24 * 60 * 60 * 1000;
+	    return (treatAsUTC(endDate) - treatAsUTC(startDate)) / millisecondsPerDay;
+	}
+	/*
+	 *************************************************************************/
+
+
 	function typesLib(){
 		var 
 			exports = {accounts:{}},
@@ -28,8 +46,9 @@
 			currency = exports.currency = {};
 			exc = exports.exc = {};
 			exc.Exception = Class(Error);
-			exc.InterestInvalidDate = Class(exc.Exception, "InterestInvalidDate", "Could not initialize Interest(): Invalid Date")
-			exc.UnorderedTransactions = Class(exc.Exception)
+			exc.InterestInvalidDate = Class(exc.Exception, "InterestInvalidDate", "Could not initialize Interest(): Invalid Date");
+			exc.InterestInvalidMode = Class(exc.Exception, "InterestInvalidMode", "Could not initialize Interest(): Invalid Mode (Must be `blind` or `smart`)");
+			exc.UnorderedTransactions = Class(exc.Exception);
 
 			/*
 				@object BalanceTypes
@@ -58,7 +77,7 @@
 			// @class
 			exports.Interest = Class({
 				init: function(){
-					if (!date.getDate()) throw InterestInvalidDate;
+					if (!this.date.getDate()) throw InterestInvalidDate;
 				}
 			});
 
@@ -156,12 +175,63 @@
 				},
 
 				// @method
-				applyInterest: function(date){
+				applyInterest: function(date, mode, note){
+					if (!this.apr) { return {}; }
+					var
+						interest,
+						transaction,
+						amount,
+						periodStart,
+						mode = mode || "blind",
+						note = note || "Interest Applied: "+date
+					;
+
+					if (["blind", "smart"].indexOf(mode) == -1){
+						throw exc.InterestInvalidMode()
+					}
 					if (typeof date == "undefined") date = new Date();
 					if (!date.getDate()) throw new exc.InvalidDate;
 
 					// Find the start date for this period
 					console.warn("FIXME: Add support for interest rules (monthly/daily, etc)")
+
+					interest = new exports.Interest({date: date});
+
+					periodStart = this.interestHistory[this.interestHistory.length-1];
+					x = periodStart;
+					if (!periodStart){
+						periodStart = {date:this.transactionHistory[0].date, balance:0}
+						y = periodStart;
+					}
+
+					if (mode=="blind"){
+						var periodStartVal = this.getPeriodNet(0, periodStart.date);
+						var periodChange = this.getPeriodNet(periodStart.date, date);
+						var numDays = daysBetween(periodStart.date, date);
+
+						interest = new exports.Interest({
+							date: date,
+							priorBalance: periodStartVal+periodChange,
+							days: numDays,
+							//       . Ending Balance
+							amount: (periodStartVal+periodChange)*(numDays/365)*(this.apr/100)
+						});
+
+						var tx = this.transaction(interest.amount, date, note);
+						this.interestHistory.push(interest);
+
+						return interest
+
+					}
+					else {
+						throw "Sorry, only `blind` mode is currently implemented.";
+					}
+
+
+					this.getPeriodNetWorth(0, date);
+					this.interestHistory.push(interest);
+
+					return interest;
 
 				},
 
@@ -234,6 +304,11 @@
 
 			exports.accounts.Expense = Class(Account, {
 				_type: "Expense",
+				balanceType: BalanceTypes.Neutral
+			})
+
+			exports.accounts.Interest = Class(Account, {
+				_type: "Interest",
 				balanceType: BalanceTypes.Neutral
 			})
 

@@ -28,7 +28,7 @@
 				new _fisim.types.accounts.Asset({name:"cd", startingBalance:2026.32, apr:2.1, date:date}),
 
 				// Retirement
-				new _fisim.types.accounts.Asset({name:"401k", startingBalance:6215.59, date:date}),
+				new _fisim.types.accounts.Asset({name:"401k", startingBalance:6215.59, date:date, apr:3.9}),
 
 				// Liabilities
 				new _fisim.types.accounts.CreditCard({name:"citi", startingBalance:62.32, apr:20.1, date:date}),
@@ -43,7 +43,10 @@
 				// Expenses
 				new _fisim.types.accounts.Expense({name: "Utilities", date:date}),
 				new _fisim.types.accounts.Expense({name: "Maintenance", date:date}),
-				new _fisim.types.accounts.Expense({name: "Entertainment", date:date})
+				new _fisim.types.accounts.Expense({name: "Entertainment", date:date}),
+
+				// Maintenance Accounts
+				new _fisim.types.accounts.Interest({name: "Interest Overlord", date:date, startingBalance:0})
 			]
 		});
 	}
@@ -159,9 +162,12 @@
 		var
 			today = new Date("2010-01-01T00:00:01-0600"),
 			fred = makeFred(today),
+			fredInitialTxCount = fred.getTransactions().length,
 			days = [],
+
 			gains = 0,
 			losses = 0,
+
 			startingBalance = fred.worth(),
 			balance = startingBalance,
 			payweek = 0,
@@ -192,13 +198,7 @@
 
 
 		function isSamplePeriod(){
-			var result = (samplePeriodTestStartDate <= today) && (today <= samplePeriodTestEndingDate);
-			if (!result && isSamplePeriodStartDate()){
-				console.log("\n\n\n\n\n DANGER DANGER DANGER", samplePeriodTestStartDate, today);
-				console.log(samplePeriodTestStartDate.getTime(), today.getTime())
-				console.log("\n\n\n\n\n\n")
-			}
-			return result;
+			return (samplePeriodTestStartDate <= today) && (today <= samplePeriodTestEndingDate);
 		}
 
 		function EARN(amount, timestamp, message){
@@ -249,6 +249,22 @@
 			}
 		}
 
+
+		function EXCHANGE(amount, timestamp, message){
+			++txcount;
+
+			var tx = {
+					date : new Date(timestamp),
+					message: message,
+					count: txcount,
+					change: 0,
+					balance: balance
+				}
+
+			completeHistory.push(tx);
+		}
+
+
 		// Set up day-zero
 		today = new Date(today);
 		today.setDate(today.getDate()-1);
@@ -286,6 +302,30 @@
 					fred.findAccount("checking").take(tmpval, evening, "Gas up!");
 					fred.findAccount("Maintenance").give(tmpval, evening, "Gas up!");
 					LOSE(tmpval, evening, "Gas Up!");
+
+
+					// On the first monday of every month, let's apply interest to all accounts.
+					if (today.getDate()<8){
+						for (var acct in fred.accounts){
+							acct = fred.accounts[acct];
+
+							var interest = acct.applyInterest(evening, "blind");
+
+							if (acct.balanceType>0 && interest.amount){
+								fred.findAccount("Interest Overlord").take(interest.amount, evening);
+								EARN(interest.amount, evening, "Interest");
+
+							} else if (acct.balanceType < 0 && interest.amount){
+								fred.findAccount("Interest Overlord").give(interest.amount, evening);
+								LOSE(interest.amount, evening, "Interest");
+							}
+
+							if (!interest.days) continue;
+							assert(interest.days < 36, "Somehow interest larger than the limits of a potential period: "+interest.days+" days.")
+						}
+
+					}
+
 					break;
 
 				// Tu-Th, ordinary week days.
@@ -313,7 +353,6 @@
 				case 5:
 					if (payweek){
 						// F.B.G.P!!!
-						konsole.log("PAy Day!");
 						fred.findAccount("employer").take(paycheck, today, "Pay Day!");
 						fred.findAccount("checking").give(paycheck, today, "Pay Day!");
 						EARN(paycheck, today, "Pay Day!");
@@ -339,6 +378,7 @@
 							// Mortgage
 							fred.findAccount("checking").take(mortgage, morning, "Mortgage payment");
 							fred.findAccount("mortgage").give(mortgage, morning, "Mortgage payment");
+							EXCHANGE(mortgage, morning, "Mortgage payment");
 
 							// Energy
 							tmpval = rndVal(80,200,2);
@@ -393,11 +433,23 @@
 			)
 			konsole.log("Snapshot & period ranges passed", samplePeriodTestStartBal, samplePeriodTestAdj);
 
+			// does Entity.getTransactions() add up, and look right?
+			var allTransactions = fred.getTransactions(0, Infinity);
+			for (var i = 0; i+1<allTransactions.length; ++i){
+				assert(
+					allTransactions[i].date.getTime() <= allTransactions[i+1].date.getTime(),
+					("Testing: "+allTransactions[i].date+"<="+allTransactions[i+1].date) // Message
+				);
+			}
+			assertEq(allTransactions.length, (txcount*2)+fredInitialTxCount);
+			konsole.log("getTransactions is appropriately sorted, and complete.")
+
 			konsole.log("\n*\n*\n*\n   -- Tests Passed -- \n*\n*\n*\n")
 
 		} catch(err) {
 
-			konsole.error("Aww shoot, tests failed")
+			konsole.error(err);
+			konsole.error("Aww shoot, tests failed");
 
 		}
 
@@ -540,6 +592,7 @@
 		testRangeOperations: testRangeOperations,
 		yesno: yesno,
 		rndVal: rndVal
+
 	};
  
 })(this);
