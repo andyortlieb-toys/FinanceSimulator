@@ -305,6 +305,16 @@
 						transactions = transactions.concat(this.accounts[acctk].getPeriod(start, end));
 					}
 
+					transactions.sort(function compare(a, b) {
+						if (a.date<b.date || a._transaction_id<b._transaction_id) {
+							return -1;
+						}
+						if (a.date>b.date || a._transaction_id>b._transaction_id) {
+							return 1;
+						}
+						return 0;
+					})
+
 					return transactions;
 				},
 
