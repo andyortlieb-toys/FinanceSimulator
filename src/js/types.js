@@ -20,7 +20,8 @@
 	*/
 	function typesLib(){
 		var 
-			exports = {accounts:{}}
+			exports = {accounts:{}},
+			nextTxId = 1;
 		;
 
 		with (exports){
@@ -41,15 +42,16 @@
 			}
 
 			// @class
-		 	currency.USD = function(val){
-		 		return parseFloat((val).toFixed(2));
-		 	};
+			currency.USD = function(val){
+				return parseFloat((val).toFixed(2));
+			};
 
 			// @class
 			exports.Transaction = Class({
 				init: function(){
 					if (typeof this.amount != "number") this.amount = 0;
 					if (!(this.date instanceof Date)) this.date = new Date();
+					this._transaction_id = nextTxId++;
 				}
 			});
 
@@ -114,9 +116,16 @@
 				// Stores the transaction and adjusts the balance
 				transaction: function(amount, date, note){
 					this.init()
-					this._pushAscending(this.transactionHistory,
-								   new Transaction({amount:amount, balance:this.balance+amount, date:date, note:note}),
-								   "date");
+					this._pushAscending(
+						this.transactionHistory,
+						new Transaction({
+							amount:amount,
+							balance:this.balance+amount,
+							date:date,
+							note:note,
+							_account:this
+						}),
+					   "date");
 					this.balance += amount
 				},
 
@@ -175,9 +184,9 @@
 				getPeriod: function(start, end){
 					var ret = [];
 					var res = binaryFindAll(this.transactionHistory, function(it){
-			            if (it.date < start) return -1; // Doesn't match.  Look more to the right
-			            if (it.date > end) return 1; // Doesn't match. Look more to the left.
-			            return 0; // Matches. Keep it.
+						if (it.date < start) return -1; // Doesn't match.  Look more to the right
+						if (it.date > end) return 1; // Doesn't match. Look more to the left.
+						return 0; // Matches. Keep it.
 					});
 					for (var i in res){ ret.push(this.transactionHistory[res[i]]); }
 					return ret;
@@ -284,7 +293,20 @@
 						val += (this.accounts[k].getPeriodNetWorth(start, end));
 					}
 					return val;
-				},				
+				},
+
+				// @method
+				getTransactions: function(start, end){
+					var
+						acctk,
+						transactions = []
+					;
+					for (var acctk in this.accounts){
+						transactions = transactions.concat(this.accounts[acctk].getPeriod(start, end));
+					}
+
+					return transactions;
+				},
 
 				// @method
 				// Finds an account by name
