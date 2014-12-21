@@ -173,16 +173,13 @@
 			tmpval,
 
 			samplePeriodTestStartDate = new Date("2010-06-01T00:00:01-0600"),
-			samplePeriodTestEndingDate = new Date("2010-08-15T00:00:01-0600"),
+			samplePeriodTestEndingDate = new Date("2010-08-15T22:59:59-0600"),
 			samplePeriodTestStartBal = 0,
 			samplePeriodTestAdj = 0,
-			samplePeriodHistory = []
+			samplePeriodHistory = [],
+			completeHistory = []
 		;
 
-		function isSamplePeriod(){
-			return (samplePeriodTestStartDate <= today) && (today <= samplePeriodTestEndingDate);
-			//return (samplePeriodTestStartDate.getDate() <= today.getDate()) && (today.getDate() <= samplePeriodTestEndingDate.getDate());
-		}
 		function isSamplePeriodStartDate(){
 			return (
 				(today.getYear()==samplePeriodTestStartDate.getYear())
@@ -193,6 +190,12 @@
 			);
 		}
 
+
+		function isSamplePeriod(){
+			return (samplePeriodTestStartDate <= today) && (today <= samplePeriodTestEndingDate);
+			//return (samplePeriodTestStartDate.getDate() <= today.getDate()) && (today.getDate() <= samplePeriodTestEndingDate.getDate());
+		}
+
 		function EARN(amount, timestamp, message){
 			balance += amount;
 			today.balance += amount;
@@ -200,16 +203,20 @@
 			today.gains += amount;
 			++txcount;
 
-			//samplePeriodTest
-			if (isSamplePeriod()){
-				samplePeriodTestAdj += amount;
-				samplePeriodHistory.push({
+			var tx = {
 					date : new Date(timestamp),
 					message: message,
 					count: txcount,
 					change: amount,
 					balance: balance
-				})
+				}
+
+			completeHistory.push(tx);
+
+			//samplePeriodTest
+			if (isSamplePeriod()){
+				samplePeriodTestAdj += amount;
+				samplePeriodHistory.push(tx)
 			}
 		}
 
@@ -220,16 +227,20 @@
 			today.losses += amount;
 			++txcount;
 
-			//samplePeriodTest
-			if (isSamplePeriod()){
-				samplePeriodTestAdj -= amount;
-				samplePeriodHistory.push({
+			var tx = {
 					date : new Date(timestamp),
 					message: message,
 					count: txcount,
 					change: -amount,
 					balance: balance
-				})
+				}
+
+			completeHistory.push(tx);
+
+			//samplePeriodTest
+			if (isSamplePeriod()){
+				samplePeriodTestAdj -= amount;
+				samplePeriodHistory.push(tx)
 			}
 		}
 
@@ -340,9 +351,9 @@
 				case 0:
 					if (yesno(-2)){
 						tmpval = rndVal(16,30,2);
-						LOSE(tmpval);
 						fred.findAccount("checking").take(tmpval, morning, "Sunday Brunch");
 						fred.findAccount("Entertainment").give(tmpval, morning, "Sunday Brunch");
+						LOSE(tmpval, morning, "Sunday Brunch");
 					}
 
 					break;
@@ -371,7 +382,6 @@
 			)
 			konsole.log("Snapshot is good")
 
-
 			assertEq(
 				_fisim.types.currency.USD(samplePeriodTestAdj),
 				_fisim.types.currency.USD(fred.getPeriodNetWorth(samplePeriodTestStartDate, samplePeriodTestEndingDate))
@@ -391,7 +401,9 @@
 			for (var hk in samplePeriodHistory){
 				var item = samplePeriodHistory[hk];
 				var itemdate = new Date(item.date);
-				var rangeWorth = fred.getPeriodNetWorth(samplePeriodTestStartDate, itemdate);
+				var omg = new Date(samplePeriodTestStartDate);
+				omg.setHours(4)
+				var rangeWorth = fred.getPeriodNetWorth(omg, itemdate);
 				bal += item.change
 				console.log(
 					(rangeWorth==bal?"   :) ":":(    "), 
@@ -414,7 +426,9 @@
 			samplePeriodTestStartDate: samplePeriodTestStartDate,
 			samplePeriodHistory: samplePeriodHistory,
 
-			samplePeriodReport: samplePeriodReport
+			samplePeriodReport: samplePeriodReport,
+
+			completeHistory: completeHistory
 		}
 	};
 
@@ -447,10 +461,6 @@
 			samplePeriodTestStartBal = 0,
 			samplePeriodTestAdj = 0
 		;
-
-		function isSamplePeriod(){
-			return (samplePeriodTestStartDate <= today) && (today <= samplePeriodTestEndingDate);
-		}
 
 		function getSamplePeriodWorth(){
 			return fred.getPeriodNetWorth(samplePeriodTestStartDate, samplePeriodTestEndingDate);
