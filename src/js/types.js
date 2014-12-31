@@ -151,13 +151,15 @@
 				// @method
 				// Send money to this account
 				give: function(amount, date, note){
-					this.transaction(amount*this.balanceType, date, note);
+					var modifier = this.balanceType || 1;
+					this.transaction(amount*modifier, date, note);
 				},
 
 				// @method
 				// Take money from this account
 				take: function(amount, date, note){
-					this.transaction(amount*(-this.balanceType), date, note);
+					var modifier = this.balanceType || 1;
+					this.transaction(amount*(-modifier), date, note);
 				},
 
 				// @method
