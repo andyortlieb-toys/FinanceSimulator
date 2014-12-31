@@ -174,9 +174,13 @@
 			morning, noon, evening,
 
 			paycheck = 1300,
-			mortgage = 600,
+			mortgage = 900,
 			txcount = 0,
 			tmpval,
+
+			sav_401k = 500,
+			sav_cd = 100,
+
 
 			samplePeriodTestStartDate = new Date("2010-06-01T00:00:01-0500"),
 			samplePeriodTestEndingDate = new Date("2010-08-15T22:59:59-0500"),
@@ -271,7 +275,7 @@
 		days.push(today);
 
 		// Create two years worth of dates
-		for (var i=0; i<(365*2); ++i){
+		for (var i=0; i<(365*30); ++i){
 			// Initialize a new day
 			today = new Date(today);
 			today.setDate(today.getDate()+1);
@@ -353,9 +357,15 @@
 				case 5:
 					if (payweek){
 						// F.B.G.P!!!
-						fred.findAccount("employer").take(paycheck, today, "Pay Day!");
-						fred.findAccount("checking").give(paycheck, today, "Pay Day!");
-						EARN(paycheck, today, "Pay Day!");
+						fred.findAccount("employer").take(paycheck-sav_401k, today, "Pay Day!");
+						fred.findAccount("checking").give(paycheck-sav_401k, today, "Pay Day!");
+						EARN(paycheck-sav_401k, today, "Pay Day!");
+
+						fred.findAccount("employer").take(sav_401k, today, "Pay Day:401k");
+						fred.findAccount("401k").give(sav_401k, today, "Pay Day:401k");
+						EARN(sav_401k, today, "Pay Day:401k");
+
+
 
 					} else {
 						// Normal business
@@ -379,12 +389,19 @@
 							fred.findAccount("checking").take(mortgage, morning, "Mortgage payment");
 							fred.findAccount("mortgage").give(mortgage, morning, "Mortgage payment");
 							EXCHANGE(mortgage, morning, "Mortgage payment");
+							console.log(today, "Mortgage Balance", fred.findAccount('mortgage').balance);
 
 							// Energy
 							tmpval = rndVal(80,200,2);
 							fred.findAccount("checking").take(tmpval, evening, "Energy");
 							fred.findAccount("Utilities").give(tmpval, evening, "Energy");
 							LOSE(tmpval, evening, "Energy");
+
+							// SAVINGS
+							fred.findAccount("checking").take(sav_cd, evening, "Pay Day:CD")
+							fred.findAccount("cd").give(sav_cd, evening, "Pay Day:CD")
+							EXCHANGE(sav_cd, evening, "Pay Day:CD")
+
 
 						}
 					} else {
@@ -509,7 +526,7 @@
 			morning, noon, evening,
 
 			paycheck = 1300,
-			mortgage = 600,
+			mortgage = 800,
 			txcount = 0,
 			tmpval,
 
