@@ -389,7 +389,6 @@
 							fred.findAccount("checking").take(mortgage, morning, "Mortgage payment");
 							fred.findAccount("mortgage").give(mortgage, morning, "Mortgage payment");
 							EXCHANGE(mortgage, morning, "Mortgage payment");
-							console.log(today, "Mortgage Balance", fred.findAccount('mortgage').balance);
 
 							// Energy
 							tmpval = rndVal(80,200,2);

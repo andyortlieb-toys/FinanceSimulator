@@ -194,8 +194,9 @@
 					if (typeof date == "undefined") date = new Date();
 					if (!date.getDate()) throw new exc.InvalidDate;
 
-					// Find the start date for this period
-					console.warn("FIXME: Add support for interest rules (monthly/daily, etc)")
+					// Or maybe this should be left up to the driver.
+					// // Find the start date for this period
+					// console.warn("FIXME: Add support for interest rules (monthly/daily, etc)")
 
 					interest = new exports.Interest({date: date});
 
