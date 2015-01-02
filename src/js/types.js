@@ -253,29 +253,30 @@
 				},
 
 				// @method
-				getPeriod: function(start, end){
+				getPeriod: function(start, end, interestOnly){
 					var ret = [];
-					var res = binaryFindAll(this.transactionHistory, function(it){
+					var srch = interestOnly ? this.interestHistory : this.transactionHistory;
+					var res = binaryFindAll(srch, function(it){
 						if (it.date < start) return -1; // Doesn't match.  Look more to the right
 						if (it.date > end) return 1; // Doesn't match. Look more to the left.
 						return 0; // Matches. Keep it.
 					});
-					for (var i in res){ ret.push(this.transactionHistory[res[i]]); }
+					for (var i in res){ ret.push(srch[res[i]]); }
 					return ret;
 				},
 
 				// @method
-				getPeriodNet: function(start, end){
+				getPeriodNet: function(start, end, interestOnly){
 					var val = 0;
-					this.getPeriod(start, end).forEach(function(it){
+					this.getPeriod(start, end, interestOnly).forEach(function(it){
 						val += it.amount;
 					});
 					return val;
 				},
 
 				// @method
-				getPeriodNetWorth: function(start, end){
-					return this.getPeriodNet(start, end) * this.balanceType;
+				getPeriodNetWorth: function(start, end, interestOnly){
+					return this.getPeriodNet(start, end, interestOnly) * this.balanceType;
 				},
 
 				// @prop
