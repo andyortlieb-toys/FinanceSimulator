@@ -405,7 +405,7 @@
 					}
 				}
 			})
-			exports.Person = Class(exports.Entity)
+			exports.Person = Class(exports.Entity);
 
 			exports.accountTypes = (function(){
 				var res = []
